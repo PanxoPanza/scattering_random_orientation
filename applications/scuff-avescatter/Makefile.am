@@ -1,4 +1,4 @@
-bin_PROGRAMS = scuff-avescatter scuff-integrate
+bin_PROGRAMS = scuff-avescatter
 
 scuff_avescatter_SOURCES = 		\
  scuff-avescatter.cc         	\
@@ -7,8 +7,6 @@ scuff_avescatter_SOURCES = 		\
  CreateSNEQData.cc
 
 scuff_avescatter_LDADD = $(top_builddir)/libs/libscuff/libscuff.la
-
-scuff_integrate_SOURCES = scuff-integrate.cc
 
 scuff_integrate_LDADD = $(top_builddir)/libs/libscuff/libscuff.la
 
