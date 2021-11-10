@@ -8,8 +8,6 @@ scuff_avescatter_SOURCES = 		\
 
 scuff_avescatter_LDADD = $(top_builddir)/libs/libscuff/libscuff.la
 
-scuff_integrate_LDADD = $(top_builddir)/libs/libscuff/libscuff.la
-
 AM_CPPFLAGS = -I$(top_srcdir)/libs/libscuff      \
               -I$(top_srcdir)/libs/libIncField   \
               -I$(top_srcdir)/libs/libMatProp    \
