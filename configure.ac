@@ -313,6 +313,7 @@ AC_CONFIG_FILES([
  examples/pythonCapacitance/Makefile
  examples/SolidSphere/Makefile
  examples/SphericalShell/Makefile
+ examples/Spheroid_Avscat/MakeFile
  examples/SiliconBeams/Makefile
  examples/SiO2Spheres/Makefile
  examples/StriplineCapacitor/Makefile
