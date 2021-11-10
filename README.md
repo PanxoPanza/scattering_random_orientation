@@ -1,4 +1,4 @@
-# AVESCATTER
+# SCUFF-AVESCATTER
 A scuff-em application for average scattering of randomly oriented particles. More info in [this link](https://arxiv.org/abs/2110.14799v3)
 
 To install this appplication, first install scuff-em and then copy and paste the content of this repository into scuff-em main folder
