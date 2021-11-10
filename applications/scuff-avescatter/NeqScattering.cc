@@ -41,6 +41,19 @@
 #define NO_SCUFF_TRANSFORM false
 
 /***************************************************************/
+/***************************************************************/
+/***************************************************************/
+void UndoSCUFFMatrixTransformation(HMatrix *M)
+{ 
+  for (int nr=0; nr<M->NR; nr+=2)
+   for (int nc=0; nc<M->NC; nc+=2)
+    { M->SetEntry(nr,   nc,   ZVAC*M->GetEntry(nr,   nc)   );
+      M->SetEntry(nr,   nc+1, -1.0*M->GetEntry(nr,   nc+1) );
+      M->SetEntry(nr+1, nc+1, -1.0*M->GetEntry(nr+1, nc+1)/ZVAC );
+    };
+}
+
+/***************************************************************/
 /* compute the trace formula for the product between two matrix*/
 /*		- Gdest is the destiny matrix                          */
 /*		- DRMatrix is the Dressed Rytov Matrix (4/PI Factor)   */
@@ -609,14 +622,14 @@ void AverageScatteringFlux(SNEQData *SNEQD, cdouble Omega, HMatrix *PFTMatrix)
 	AdvancedDRMatrix(SNEQD, AV_SCATTERING);
 
 	for (int nsd = 0; nsd < NS; nsd++) {
-		// Get neq Scattering flux
+		// Get av. scattering flux
 		ScatFlux = GetTraceFlux(SNEQD, T0, DRMatrix, nsd); 
 		PFTMatrix->SetEntry(nsd, PFT_PSCAT, ScatFlux / kPI2);
 
 		// Initialize scat<cos> flux
 		AsymFlux[nsd] = 0.0;
 
-		// Get neq Absorption flux
+		// Get av absorption flux
 		RegionIdx = G->Surfaces[nsd]->RegionIndices[1];
 		if (RegionIdx == 0)
 			RegionIdx = G->Surfaces[nsd]->RegionIndices[0];

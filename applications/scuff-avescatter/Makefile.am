@@ -4,7 +4,6 @@ scuff_avescatter_SOURCES = 		\
  scuff-avescatter.cc         	\
  scuff-avescatter.h		\
  NeqScattering.cc        	\
- WriteFlux.cc			\
  CreateSNEQData.cc
 
 scuff_avescatter_LDADD = $(top_builddir)/libs/libscuff/libscuff.la

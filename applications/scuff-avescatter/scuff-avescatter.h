@@ -146,13 +146,12 @@ SNEQData *CreateSNEQData(char *GeoFile, char *TransFile,
 /*--------------------------------------------------------------*/
 /*- in GetFlux.cc ----------------------------------------------*/
 /*--------------------------------------------------------------*/
-void WriteFlux(SNEQData *SNEQD, cdouble Omega, double *kBloch=0);
+//void WriteFlux(SNEQData *SNEQD, cdouble Omega, double *kBloch=0);
 void UndoSCUFFMatrixTransformation(HMatrix *M);
 
 /*--------------------------------------------------------------*/
 /*- in NeqScattering.cc ----------------------------------------*/
 /*--------------------------------------------------------------*/
 void NeqScattering(SNEQData *SNEQD, cdouble Omega, double *kBloch=0);
-
 
 #endif

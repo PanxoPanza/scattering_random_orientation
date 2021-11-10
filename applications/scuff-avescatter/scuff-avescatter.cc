@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
   bool EMTPFT      = false;
   bool OPFT        = false;
   bool DSIPFT      = false;
-  bool AVSCAT      = false; // F. Ramirez 2020
+  //bool AVSCAT      = false; // F. Ramirez 2020
   int DSIPoints    = 0;
   int DSIPoints2   = 0;
   char *DSIMesh    = 0;
@@ -120,16 +120,14 @@ int main(int argc, char *argv[])
      {"PlotFlux",       PA_BOOL,    0, 1,       (void *)&PlotFlux,   0,             "write spatially-resolved flux data"},
      {"OmitSelfTerms",  PA_BOOL,    0, 1,       (void *)&OmitSelfTerms,   0,             "write spatially-resolved flux data"},
 /**/
-     {"EMTPFT",         PA_BOOL,    0, 1,       (void *)&EMTPFT,     0,             "compute SIFlux using EMT method"},
-     {"OPFT",           PA_BOOL,    0, 1,       (void *)&OPFT,       0,             "compute SIFlux using overlap method"},
-     {"DSIPFT",         PA_BOOL,    0, 1,       (void *)&DSIPFT,     0,             "compute SIFlux using displaced surface integral method"},
+     {"EMTPFT",         PA_BOOL,    0, 1,       (void *)&EMTPFT,     0,             "compute AVSCAT using EMT method"},
+     {"OPFT",           PA_BOOL,    0, 1,       (void *)&OPFT,       0,             "compute AVSCAT using overlap method"},
+     {"DSIPFT",         PA_BOOL,    0, 1,       (void *)&DSIPFT,     0,             "compute AVSCAT using displaced surface integral method"},
      {"DSIRadius",      PA_DOUBLE,  1, 1,       (void *)&DSIRadius,  0,             "bounding-sphere radius for DSIPFT"},
      {"DSIPoints",      PA_INT,     1, 1,       (void *)&DSIPoints,  0,             "number of cubature points for DSIPFT over sphere (6, 14, 26, 38, 50, 74, 86, 110, 146, 170, 194, 230, 266, 302, 350, 434, 590, 770, 974, 1202, 1454, 1730, 2030, 2354, 2702, 3074, 3470, 3890, 4334, 4802, 5294, 5810)"},
      {"DSIPoints2",     PA_INT,     1, 1,       (void *)&DSIPoints2, 0,             "number of cubature points for DSIPFT second opinion"},
      {"DSIMesh",        PA_STRING,  1, 1,       (void *)&DSIMesh,    0,             "bounding surface .msh file for DSIPFT"},
      {"DSIOmegaFile",   PA_STRING,  1, 1,       (void *)&DSIOmegaFile,  0,          "list of frequencies at which to perform DSI calculations"},
-/* Orientation Average Scattering Calculations (F. Ramirez 2020)    */
-//	 {"AVSCAT",         PA_BOOL,    0, 1,       (void *)&AVSCAT,     0,             "compute hemispherical average scattering" },
 /**/
      {"Cache",          PA_STRING,  1, 1,       (void *)&Cache,      0,             "read/write cache"},
      {"ReadCache",      PA_STRING,  1, MAXCACHE,(void *)ReadCache,   &nReadCache,   "read cache"},
@@ -157,22 +155,27 @@ int main(int argc, char *argv[])
   /*******************************************************************/
   /* determine which PFT methods were requested       ****************/
   /*******************************************************************/
+  
   int NumPFTMethods=0, PFTMethods[MAXPFTMETHODS];
+  
   if(EMTPFT)
    PFTMethods[NumPFTMethods++] = SCUFF_PFT_EMT;
   if(OPFT)
-   PFTMethods[NumPFTMethods++] = SCUFF_PFT_OVERLAP;
+   Log("OPFT method not supported.");
+   //PFTMethods[NumPFTMethods++] = SCUFF_PFT_OVERLAP;
   if(DSIMesh)
-   PFTMethods[NumPFTMethods++] = -SCUFF_PFT_DSI;
+   Log("DSI method not supported.");
+   //PFTMethods[NumPFTMethods++] = -SCUFF_PFT_DSI;
   if(DSIPoints)
-   PFTMethods[NumPFTMethods++] = DSIPoints;
+   Log("DSIPoints method not supported.");
+   //PFTMethods[NumPFTMethods++] = DSIPoints;
   if(DSIPoints2)
-   PFTMethods[NumPFTMethods++] = DSIPoints2;
-  if (AVSCAT) 
-   PFTMethods[NumPFTMethods++] = SCUFF_AVSCAT_EMT;
+   Log("DSIPoints2 method not supported.");
+   //PFTMethods[NumPFTMethods++] = DSIPoints2;
 
+  // perform EMT method by default (F. Ramirez 2020)
   if (NumPFTMethods==0 && EPFile==0)
-   PFTMethods[NumPFTMethods++] = SCUFF_AVSCAT_EMT;  // perform average scattering calculations by default (F. Ramirez 2020)
+   PFTMethods[NumPFTMethods++] = SCUFF_PFT_EMT;
 
   if (DSIMesh) 
    PlotFlux=true;
@@ -182,10 +185,12 @@ int main(int argc, char *argv[])
   /*******************************************************************/
   HMatrix *OmegaKBPoints=0;
   if (OmegaKBFile)
-   { OmegaKBPoints = new HMatrix(OmegaKBFile,LHM_TEXT,"--ncol 3");
+   Log("OmegaKBFile not supported");
+   /*{ OmegaKBPoints = new HMatrix(OmegaKBFile,LHM_TEXT,"--ncol 3");
      if (OmegaKBPoints->ErrMsg)
       ErrExit(OmegaKBPoints->ErrMsg);
    };
+   */
 
   /*******************************************************************/
   /* process frequency-related options to construct a list of        */
@@ -270,7 +275,7 @@ int main(int argc, char *argv[])
   /* now switch off based on the requested frequency behavior to     */
   /* perform the actual calculations.                                */
   /*******************************************************************/
-  if (OmegaKBPoints)
+  /*if (OmegaKBPoints)
    { for (int nok=0; nok<OmegaKBPoints->NR; nok++)
       {  
         cdouble Omega; 
@@ -281,9 +286,9 @@ int main(int argc, char *argv[])
         WriteFlux(SNEQD, Omega, kBloch);
       };
    }
-  else
+  else*/
    for (int nFreq=0; nFreq<NumFreqs; nFreq++){
-	NeqScattering(SNEQD, OmegaPoints->GetEntry(nFreq));
+     NeqScattering(SNEQD, OmegaPoints->GetEntry(nFreq));
    }
 
   /***************************************************************/

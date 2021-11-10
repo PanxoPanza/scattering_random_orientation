@@ -33,23 +33,16 @@
 /***************************************************************/
 /***************************************************************/
 /***************************************************************/
-const char *QuantityNames[NUMPFT]=
- { "PAbs", "PRad",
-   "XForce",  "YForce",  "ZForce",
-   "XTorque", "YTorque", "ZTorque"
- };
-
-const char *AvScattQuantityNames[NUM_AVSCAT] =
-{ "Absorption Cross Section (um^2)", 
-  "Scattering Cross Section (um^2)", 
-  "Rad. Pressure Cross Section (um^2)"
+const char *QuantityNames[NUM_AVSCAT] =
+{ "Absorption Cross Section, Cabs (um^2)", 
+  "Scattering Cross Section, Csca (um^2)", 
+  "Asymmetry parameter * Csca, <cos>*Csca (um^2)"
 };
 
 /***************************************************************/
 /***************************************************************/
 /***************************************************************/
-void WriteSIFluxFilePreamble(SNEQData *SNEQD, char *FileName, int PFTMethod,
-	bool ByRegion = false)
+void WriteSIFluxFilePreamble(SNEQData *SNEQD, char *FileName, bool ByRegion = false)
 {
   FILE *f = ByRegion ? vfopen("%s.byRegion","a",FileName) : fopen(FileName,"a");
   fprintf(f,"\n");
@@ -68,13 +61,8 @@ void WriteSIFluxFilePreamble(SNEQData *SNEQD, char *FileName, int PFTMethod,
    fprintf(f,"# %i (sourceRegion,destRegion) \n",nq++);
   else
    fprintf(f,"# %i (sourceSurface,destSurface) \n",nq++);
-  if (PFTMethod == SCUFF_AVSCAT_EMT)
 	  for (int nPFT = 0; nPFT<NUM_AVSCAT; nPFT++)
 		  fprintf(f, "# %i Orientation Av. %s\n",
-			  nq++, AvScattQuantityNames[nPFT]);
-  else
-	  for (int nPFT = 0; nPFT<NUMPFT; nPFT++)
-		  fprintf(f, "# %i %s flux spectral density\n",
 			  nq++, QuantityNames[nPFT]);
 
   fclose(f);
@@ -144,12 +132,12 @@ SNEQData *CreateSNEQData(char *GeoFile, char *TransFile,
       sprintf(PFTName,"OPFT");
      else if (PFTMethods[npm]==SCUFF_PFT_EMT_EXTERIOR)
       sprintf(PFTName,"EMTPFT");
-	 else if (PFTMethods[npm] == SCUFF_AVSCAT_EMT)
-		 sprintf(PFTName, "AVSCAT");
-
+	  // else if (PFTMethods[npm] == SCUFF_AVSCAT_EMT)
+		// sprintf(PFTName, "AVSCAT");
+     
      SNEQD->SIFluxFileNames[npm]
-      = vstrdup("%s.SIFlux.%s",SNEQD->FileBase,PFTName);
-     WriteSIFluxFilePreamble(SNEQD, SNEQD->SIFluxFileNames[npm], PFTMethods[npm]);
+      = vstrdup("%s.AVSCAT.%s",SNEQD->FileBase,PFTName);
+     WriteSIFluxFilePreamble(SNEQD, SNEQD->SIFluxFileNames[npm]);
    };
   
   int NT = SNEQD->NumTransformations;
@@ -228,15 +216,12 @@ SNEQData *CreateSNEQData(char *GeoFile, char *TransFile,
   /*--------------------------------------------------------------*/
   /*- allocate Matrix for Av. Scattering (F. Ramirez 2020) -------*/
   /*--------------------------------------------------------------*/
-  for (int npm = 0; npm<NumPFTMethods; npm++)
-	  if (PFTMethods[npm] == SCUFF_AVSCAT_EMT){
-		  SNEQD->T0 = new HMatrix(G->TotalBFs, G->TotalBFs, LHM_COMPLEX);
-		  //SNEQD->dT0 = (HMatrix **)mallocEC(3 * sizeof(HMatrix *));
-		  //for (int xyz = 0; xyz < 3; xyz++)
-		//	  SNEQD->dT0[xyz] = 
-		//	  new HMatrix(G->TotalBFs, G->TotalBFs, LHM_COMPLEX);
-		  Log("After T0 Av. Scat.: mem=%3.1f GB", GetMemoryUsage() / 1.0e9);
-	  }
+	SNEQD->T0 = new HMatrix(G->TotalBFs, G->TotalBFs, LHM_COMPLEX);
+	//SNEQD->dT0 = (HMatrix **)mallocEC(3 * sizeof(HMatrix *));
+	//for (int xyz = 0; xyz < 3; xyz++)
+	//	  SNEQD->dT0[xyz] = 
+	//	  new HMatrix(G->TotalBFs, G->TotalBFs, LHM_COMPLEX);
+	Log("After T0 Av. Scat.: mem=%3.1f GB", GetMemoryUsage() / 1.0e9);
 // neq sca (Francisco 2019)
   /*--------------------------------------------------------------*/
   /*--------------------------------------------------------------*/
@@ -274,8 +259,7 @@ SNEQData *CreateSNEQData(char *GeoFile, char *TransFile,
      SNEQD->RegionRegionPFT = (HMatrix **)mallocEC( NumPFTMethods*sizeof(HMatrix *));
      for(int npm=0; npm<NumPFTMethods; npm++)
       { SNEQD->RegionRegionPFT[npm]=new HMatrix( (NR+1)*(NR+1), NUMPFT);
-        WriteSIFluxFilePreamble(SNEQD, SNEQD->SIFluxFileNames[npm], 
-			PFTMethods[npm], true);
+        WriteSIFluxFilePreamble(SNEQD, SNEQD->SIFluxFileNames[npm], true);
       };
    };
 
